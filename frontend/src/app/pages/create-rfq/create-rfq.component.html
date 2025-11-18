@@ -1,0 +1,134 @@
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+          <h3 class="mb-0"><i class="bi bi-file-earmark-plus"></i> Create New RFQ</h3>
+        </div>
+        <div class="card-body p-4">
+          @if (error) {
+            <div class="alert alert-danger alert-dismissible fade show">
+              {{ error }}
+              <button type="button" class="btn-close" (click)="error = ''"></button>
+            </div>
+          }
+          
+          @if (success) {
+            <div class="alert alert-success">
+              {{ success }}
+            </div>
+          }
+
+          <form [formGroup]="rfqForm" (ngSubmit)="onSubmit()">
+            <div class="mb-3">
+              <label class="form-label fw-bold">Title *</label>
+              <input type="text" class="form-control" formControlName="title"
+                placeholder="Enter RFQ title"
+                [class.is-invalid]="rfqForm.get('title')?.invalid && rfqForm.get('title')?.touched">
+              @if (rfqForm.get('title')?.invalid && rfqForm.get('title')?.touched) {
+                <div class="invalid-feedback">Title is required</div>
+              }
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-bold">Description *</label>
+              <textarea class="form-control" formControlName="description" rows="4"
+                placeholder="Provide detailed description of your requirements"
+                [class.is-invalid]="rfqForm.get('description')?.invalid && rfqForm.get('description')?.touched"></textarea>
+              @if (rfqForm.get('description')?.invalid && rfqForm.get('description')?.touched) {
+                <div class="invalid-feedback">Description is required</div>
+              }
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold">Category *</label>
+                <select class="form-select" formControlName="category"
+                  [class.is-invalid]="rfqForm.get('category')?.invalid && rfqForm.get('category')?.touched">
+                  <option value="">Select Category</option>
+                  @for (cat of categories; track cat) {
+                    <option [value]="cat">{{ cat }}</option>
+                  }
+                </select>
+                @if (rfqForm.get('category')?.invalid && rfqForm.get('category')?.touched) {
+                  <div class="invalid-feedback">Category is required</div>
+                }
+              </div>
+
+              <div class="col-md-3 mb-3">
+                <label class="form-label fw-bold">Quantity *</label>
+                <input type="number" class="form-control" formControlName="quantity"
+                  [class.is-invalid]="rfqForm.get('quantity')?.invalid && rfqForm.get('quantity')?.touched">
+                @if (rfqForm.get('quantity')?.invalid && rfqForm.get('quantity')?.touched) {
+                  <div class="invalid-feedback">Valid quantity required</div>
+                }
+              </div>
+
+              <div class="col-md-3 mb-3">
+                <label class="form-label fw-bold">Unit *</label>
+                <select class="form-select" formControlName="unit"
+                  [class.is-invalid]="rfqForm.get('unit')?.invalid && rfqForm.get('unit')?.touched">
+                  <option value="">Select</option>
+                  @for (u of units; track u) {
+                    <option [value]="u">{{ u }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-bold">Estimated Budget (Optional)</label>
+              <div class="input-group">
+                <span class="input-group-text">Rs</span>
+                <input type="number" class="form-control" formControlName="estimatedBudget"
+                  placeholder="Enter estimated budget">
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-bold">Delivery Location *</label>
+              <input type="text" class="form-control" formControlName="deliveryLocation"
+                placeholder="Enter delivery address"
+                [class.is-invalid]="rfqForm.get('deliveryLocation')?.invalid && rfqForm.get('deliveryLocation')?.touched">
+              @if (rfqForm.get('deliveryLocation')?.invalid && rfqForm.get('deliveryLocation')?.touched) {
+                <div class="invalid-feedback">Delivery location is required</div>
+              }
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold">Required Delivery Date *</label>
+                <input type="date" class="form-control" formControlName="deliveryDate"
+                  [class.is-invalid]="rfqForm.get('deliveryDate')?.invalid && rfqForm.get('deliveryDate')?.touched">
+                @if (rfqForm.get('deliveryDate')?.invalid && rfqForm.get('deliveryDate')?.touched) {
+                  <div class="invalid-feedback">Delivery date is required</div>
+                }
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold">Bidding End Date *</label>
+                <input type="date" class="form-control" formControlName="endDate"
+                  [class.is-invalid]="rfqForm.get('endDate')?.invalid && rfqForm.get('endDate')?.touched">
+                @if (rfqForm.get('endDate')?.invalid && rfqForm.get('endDate')?.touched) {
+                  <div class="invalid-feedback">End date is required</div>
+                }
+              </div>
+            </div>
+
+            <div class="d-flex gap-2 justify-content-end mt-4">
+              <button type="button" class="btn btn-secondary" (click)="resetForm()">Reset</button>
+              <button type="submit" class="btn btn-primary px-4" [disabled]="rfqForm.invalid || loading">
+                @if (loading) {
+                  <span class="spinner-border spinner-border-sm me-2"></span>
+                  Creating...
+                } @else {
+                  <i class="bi bi-check-circle me-2"></i>Create RFQ
+                }
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

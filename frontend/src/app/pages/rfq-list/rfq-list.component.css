@@ -1,0 +1,70 @@
+.hover-card {
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.hover-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+.rfq-card .card-header {
+  background-color: #f8f9fa;
+  border-bottom: 2px solid #dee2e6;
+  padding: 1rem;
+}
+
+.rfq-card .card-title {
+  color: #2c3e50;
+  font-size: 1.1rem;
+  line-height: 1.4;
+  min-height: 2.8rem;
+}
+
+.rfq-card .card-footer {
+  background-color: #ffffff;
+  border-top: 2px solid #dee2e6;
+  padding: 1rem;
+}
+
+.detail-row {
+  display: flex;
+  align-items: center;
+  padding: 0.25rem 0;
+}
+
+.detail-row i {
+  font-size: 1rem;
+  width: 20px;
+  flex-shrink: 0;
+}
+
+.badge {
+  font-size: 0.75rem;
+  padding: 0.4rem 0.8rem;
+  font-weight: 500;
+}
+
+.btn-group-sm .btn {
+  padding: 0.375rem 0.75rem;
+}
+
+.card-body {
+  padding: 1.25rem;
+}
+
+/* Make buttons not trigger card click */
+.card-footer button {
+  position: relative;
+  z-index: 10;
+}
+
+.btn-group {
+  display: flex;
+}
+
+.btn-group .btn {
+  flex: 1;
+}

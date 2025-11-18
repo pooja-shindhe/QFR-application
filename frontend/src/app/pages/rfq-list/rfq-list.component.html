@@ -1,0 +1,166 @@
+<div class="container mt-4">
+
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2><i class="bi bi-list-ul"></i> My RFQs</h2>
+      <p class="text-muted">Manage your quotation requests</p>
+    </div>
+    <a routerLink="/create-rfq" class="btn btn-primary">
+      <i class="bi bi-plus-circle"></i> Create New RFQ
+    </a>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" style="width:3rem; height:3rem;"></div>
+    <p class="mt-3 text-muted">Loading your RFQs...</p>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error && !loading"
+       class="alert alert-danger alert-dismissible fade show">
+    {{ error }}
+    <button type="button" class="btn-close" (click)="error=''"></button>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && rfqs.length === 0" class="card text-center py-5 shadow-sm">
+    <i class="bi bi-inbox" style="font-size:4rem; color:#ccc"></i>
+    <h4 class="mt-3">No RFQs Found</h4>
+    <p class="text-muted">Create your first RFQ to get started.</p>
+  </div>
+
+  <!-- Summary Cards -->
+  <div *ngIf="!loading && rfqs.length > 0" class="row mb-4">
+
+    <div class="col-md-3">
+      <div class="card bg-success text-white text-center">
+        <div class="card-body">
+          <h3>{{ openCount }}</h3>
+          <p>Open RFQs</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card bg-secondary text-white text-center">
+        <div class="card-body">
+          <h3>{{ closedCount }}</h3>
+          <p>Closed RFQs</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card bg-primary text-white text-center">
+        <div class="card-body">
+          <h3>{{ awardedCount }}</h3>
+          <p>Awarded RFQs</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card bg-info text-white text-center">
+        <div class="card-body">
+          <h3>{{ rfqs.length }}</h3>
+          <p>Total RFQs</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RFQ Cards -->
+  <div *ngIf="!loading && rfqs.length > 0" class="row">
+
+    <div class="col-md-6 col-lg-4 mb-4"
+         *ngFor="let rfq of rfqs; trackBy: trackById">
+
+      <div class="card h-100 shadow-sm rfq-card"
+           (click)="viewRFQ(rfq._id)">
+
+        <!-- Header -->
+        <div class="card-header d-flex justify-content-between">
+          <span class="badge {{ getStatusBadgeClass(rfq.status) }}">
+            {{ rfq.status | uppercase }}
+          </span>
+          <small class="text-muted">{{ rfq.rfqNumber }}</small>
+        </div>
+
+        <!-- Body -->
+        <div class="card-body">
+
+          <h5 class="fw-bold">{{ rfq.title }}</h5>
+
+          <p class="text-muted small">
+            {{ rfq.description.length > 100
+                ? (rfq.description.substring(0,100) + '...')
+                : rfq.description }}
+          </p>
+
+          <div class="small">
+            <div class="mb-1"><strong>Category:</strong> {{ rfq.category }}</div>
+            <div class="mb-1"><strong>Quantity:</strong> {{ rfq.quantity }} {{ rfq.unit }}</div>
+            <div class="mb-1" *ngIf="rfq.estimatedBudget">
+              <strong>Estimated Budget:</strong> {{ formatCurrency(rfq.estimatedBudget) }}
+            </div>
+            <div class="mb-1"><strong>Location:</strong> {{ rfq.deliveryLocation }}</div>
+            <div class="mb-1"><strong>Created:</strong> {{ rfq.createdAt | date }}</div>
+            <div><strong>Deadline:</strong> {{ rfq.endDate | date }}</div>
+          </div>
+
+          <div class="mt-3" *ngIf="rfq.status === 'open' && !isExpired(rfq.endDate)">
+            <span class="badge bg-warning text-dark">
+              {{ getDaysRemaining(rfq.endDate) }} days left
+            </span>
+          </div>
+
+          <div class="mt-3" *ngIf="isExpired(rfq.endDate) && rfq.status === 'open'">
+            <span class="badge bg-danger">Expired</span>
+          </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="card-footer bg-white">
+
+          <button class="btn btn-primary btn-sm w-100 mb-2"
+                  (click)="viewBids(rfq._id, $event)">
+            View Bids
+          </button>
+
+          <div class="d-flex gap-2">
+            <button class="btn btn-outline-info btn-sm flex-fill"
+                    (click)="viewRFQ(rfq._id, $event)">
+              Details
+            </button>
+
+            <button *ngIf="rfq.status === 'open'"
+                    class="btn btn-outline-success btn-sm flex-fill"
+                    (click)="editRFQ(rfq._id, $event)">
+              Edit
+            </button>
+
+            <button *ngIf="rfq.status === 'open'"
+                    class="btn btn-outline-warning btn-sm flex-fill"
+                    (click)="closeRFQ(rfq._id, $event)">
+              Close
+            </button>
+
+            <button class="btn btn-outline-danger btn-sm flex-fill"
+                    (click)="deleteRFQ(rfq._id, $event)">
+              Delete
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

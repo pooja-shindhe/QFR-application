@@ -1,0 +1,183 @@
+<div class="container mt-4">
+  @if (loading) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status"></div>
+    </div>
+  }
+
+  @if (error && !rfq) {
+    <div class="alert alert-danger">{{ error }}</div>
+  }
+
+  @if (rfq) {
+    <div class="row">
+      <div class="col-lg-8">
+        <div class="card shadow mb-4">
+          <div class="card-header bg-primary text-white">
+            <div class="d-flex justify-content-between align-items-center">
+              <h4 class="mb-0">{{ rfq.title }}</h4>
+              <span class="badge bg-light text-dark">{{ rfq.rfqNumber }}</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="mb-4">
+              <h5>Description</h5>
+              <p class="text-muted">{{ rfq.description }}</p>
+            </div>
+
+            <div class="row mb-4">
+              <div class="col-md-6 mb-3">
+                <h6 class="text-muted">Category</h6>
+                <p><i class="bi bi-tag"></i> {{ rfq.category }}</p>
+              </div>
+              <div class="col-md-6 mb-3">
+                <h6 class="text-muted">Quantity</h6>
+                <p><i class="bi bi-box"></i> {{ rfq.quantity }} {{ rfq.unit }}</p>
+              </div>
+              @if (rfq.estimatedBudget) {
+                <div class="col-md-6 mb-3">
+                  <h6 class="text-muted">Estimated Budget</h6>
+                  <p class="text-success fw-bold">
+                    <i class="bi bi-currency-dollar"></i> ${{ rfq.estimatedBudget | number: '1.2-2' }}
+                  </p>
+                </div>
+              }
+              <div class="col-md-6 mb-3">
+                <h6 class="text-muted">Delivery Location</h6>
+                <p><i class="bi bi-geo-alt"></i> {{ rfq.deliveryLocation }}</p>
+              </div>
+              <div class="col-md-6 mb-3">
+                <h6 class="text-muted">Required Delivery Date</h6>
+                <p><i class="bi bi-calendar"></i> {{ rfq.deliveryDate | date: 'mediumDate' }}</p>
+              </div>
+              <div class="col-md-6 mb-3">
+                <h6 class="text-muted">Bidding End Date</h6>
+                <p><i class="bi bi-calendar-check"></i> {{ rfq.endDate | date: 'mediumDate' }}</p>
+              </div>
+            </div>
+
+            @if (authService.isCustomer() && rfq.customerId === authService.getCurrentUser()?.id) {
+              <div class="d-grid">
+                <button class="btn btn-primary btn-lg" (click)="viewBids()">
+                  <i class="bi bi-bar-chart"></i> View & Compare Bids
+                </button>
+              </div>
+            }
+
+            @if (authService.isVendor() && rfq.status === 'open' && getDaysRemaining() > 0) {
+              @if (!showBidForm) {
+                <div class="d-grid">
+                  <button class="btn btn-success btn-lg" (click)="toggleBidForm()">
+                    <i class="bi bi-plus-circle"></i> Submit Bid
+                  </button>
+                </div>
+              }
+            }
+          </div>
+        </div>
+
+        @if (showBidForm) {
+          <div class="card shadow">
+            <div class="card-header bg-success text-white">
+              <h5 class="mb-0">Submit Your Bid</h5>
+            </div>
+            <div class="card-body">
+              @if (error) {
+                <div class="alert alert-danger">{{ error }}</div>
+              }
+              @if (success) {
+                <div class="alert alert-success">{{ success }}</div>
+              }
+
+              <form [formGroup]="bidForm" (ngSubmit)="submitBid()">
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Quoted Price (USD) *</label>
+                  <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <input type="number" class="form-control" formControlName="quotedPrice"
+                      placeholder="Enter your price">
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-8 mb-3">
+                    <label class="form-label fw-bold">Delivery Time *</label>
+                    <input type="number" class="form-control" formControlName="deliveryTime">
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <label class="form-label fw-bold">Unit *</label>
+                    <select class="form-select" formControlName="deliveryTimeUnit">
+                      <option value="days">Days</option>
+                      <option value="weeks">Weeks</option>
+                      <option value="months">Months</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Bid Validity Period (Days) *</label>
+                  <input type="number" class="form-control" formControlName="validityPeriod">
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Additional Comments</label>
+                  <textarea class="form-control" formControlName="comments" rows="3"
+                    placeholder="Any additional information..."></textarea>
+                </div>
+
+                <div class="d-flex gap-2">
+                  <button type="button" class="btn btn-secondary" (click)="toggleBidForm()">Cancel</button>
+                  <button type="submit" class="btn btn-success flex-fill"
+                    [disabled]="bidForm.invalid || submitting">
+                    @if (submitting) {
+                      <span class="spinner-border spinner-border-sm me-2"></span>
+                      Submitting...
+                    } @else {
+                      <i class="bi bi-check-circle"></i> Submit Bid
+                    }
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="col-lg-4">
+        <div class="card shadow mb-4">
+          <div class="card-header bg-light">
+            <h5 class="mb-0">Customer Information</h5>
+          </div>
+          <div class="card-body">
+            <p><strong>Name:</strong> {{ rfq.customerName }}</p>
+            <p><strong>Status:</strong>
+              <span class="badge" [ngClass]="{
+                'bg-success': rfq.status === 'open',
+                'bg-secondary': rfq.status === 'closed',
+                'bg-primary': rfq.status === 'awarded',
+                'bg-danger': rfq.status === 'cancelled'
+              }">
+                {{ rfq.status | uppercase }}
+              </span>
+            </p>
+          </div>
+        </div>
+
+        @if (getDaysRemaining() > 0) {
+          <div class="card shadow border-warning">
+            <div class="card-body text-center">
+              <h2 class="text-warning mb-0">{{ getDaysRemaining() }}</h2>
+              <p class="text-muted mb-0">Days Remaining</p>
+            </div>
+          </div>
+        } @else {
+          <div class="card shadow border-danger">
+            <div class="card-body text-center">
+              <h5 class="text-danger mb-0">Bidding Closed</h5>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

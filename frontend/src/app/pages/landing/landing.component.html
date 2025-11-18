@@ -1,0 +1,174 @@
+<div class="landing-container">
+  <div class="hero-section text-center py-5">
+    <div class="container">
+      <h1 class="display-3 fw-bold text-primary mb-4">
+        Welcome to QFR Portal
+      </h1>
+      <p class="lead fs-4 text-secondary mb-5">
+        Your Complete Quotation For Requirement Management Solution
+      </p>
+      
+      @if (!authService.isLoggedIn()) {
+        <div class="d-flex justify-content-center gap-3">
+          <a routerLink="/registration" class="btn btn-primary btn-lg px-5">
+            Get Started
+          </a>
+          <a routerLink="/login" class="btn btn-outline-primary btn-lg px-5">
+            Sign In
+          </a>
+        </div>
+      } @else {
+        <div class="d-flex justify-content-center gap-3">
+          @if (authService.isCustomer()) {
+            <a routerLink="/create-rfq" class="btn btn-primary btn-lg px-5">
+              Create New RFQ
+            </a>
+            <a routerLink="/rfq-list" class="btn btn-outline-primary btn-lg px-5">
+              View My RFQs
+            </a>
+          }
+          @if (authService.isVendor()) {
+            <a routerLink="/open-rfq" class="btn btn-primary btn-lg px-5">
+              Browse Open RFQs
+            </a>
+            <a routerLink="/my-bids" class="btn btn-outline-primary btn-lg px-5">
+              My Bids
+            </a>
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="features-section py-5 bg-light">
+    <div class="container">
+      <h2 class="text-center mb-5 fw-bold">Key Features</h2>
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body text-center">
+              <div class="feature-icon mb-3">
+                <i class="bi bi-file-earmark-plus text-primary" style="font-size: 3rem;"></i>
+              </div>
+              <h4 class="card-title">Create RFQs</h4>
+              <p class="card-text text-secondary">
+                Customers can easily create detailed quotation requests for their requirements
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body text-center">
+              <div class="feature-icon mb-3">
+                <i class="bi bi-trophy text-success" style="font-size: 3rem;"></i>
+              </div>
+              <h4 class="card-title">Submit Bids</h4>
+              <p class="card-text text-secondary">
+                Vendors can browse open RFQs and submit competitive bids
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body text-center">
+              <div class="feature-icon mb-3">
+                <i class="bi bi-graph-up text-warning" style="font-size: 3rem;"></i>
+              </div>
+              <h4 class="card-title">Compare Quotes</h4>
+              <p class="card-text text-secondary">
+                Easily compare multiple vendor bids and select the best option
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body text-center">
+              <div class="feature-icon mb-3">
+                <i class="bi bi-file-earmark-text text-info" style="font-size: 3rem;"></i>
+              </div>
+              <h4 class="card-title">Award Contracts</h4>
+              <p class="card-text text-secondary">
+                Create and manage contracts with selected vendors
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body text-center">
+              <div class="feature-icon mb-3">
+                <i class="bi bi-shield-check text-danger" style="font-size: 3rem;"></i>
+              </div>
+              <h4 class="card-title">Secure Platform</h4>
+              <p class="card-text text-secondary">
+                Role-based access control ensures data security and privacy
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body text-center">
+              <div class="feature-icon mb-3">
+                <i class="bi bi-clock-history text-secondary" style="font-size: 3rem;"></i>
+              </div>
+              <h4 class="card-title">Real-time Updates</h4>
+              <p class="card-text text-secondary">
+                Track RFQ status and bid submissions in real-time
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="how-it-works py-5">
+    <div class="container">
+      <h2 class="text-center mb-5 fw-bold">How It Works</h2>
+      <div class="row">
+        <div class="col-md-6 mb-4">
+          <div class="card border-primary">
+            <div class="card-header bg-primary text-white">
+              <h4 class="mb-0">For Customers</h4>
+            </div>
+            <div class="card-body">
+              <ol class="list-group list-group-numbered">
+                <li class="list-group-item">Register as a Customer</li>
+                <li class="list-group-item">Create detailed RFQ with specifications</li>
+                <li class="list-group-item">Receive bids from multiple vendors</li>
+                <li class="list-group-item">Compare quotes and select best vendor</li>
+                <li class="list-group-item">Award contract and manage delivery</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+          <div class="card border-success">
+            <div class="card-header bg-success text-white">
+              <h4 class="mb-0">For Vendors</h4>
+            </div>
+            <div class="card-body">
+              <ol class="list-group list-group-numbered">
+                <li class="list-group-item">Register as a Vendor</li>
+                <li class="list-group-item">Browse open RFQs in your domain</li>
+                <li class="list-group-item">Submit competitive bids with pricing</li>
+                <li class="list-group-item">Track bid status and customer feedback</li>
+                <li class="list-group-item">Win contracts and fulfill orders</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

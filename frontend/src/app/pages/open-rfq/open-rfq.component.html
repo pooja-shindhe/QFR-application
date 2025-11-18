@@ -1,0 +1,100 @@
+<div class="container mt-4">
+  <div class="mb-4">
+    <h2><i class="bi bi-folder-open"></i> Open RFQs</h2>
+    <p class="text-muted">Browse and bid on available quotation requests</p>
+  </div>
+
+  @if (loading) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  }
+
+  @if (error) {
+    <div class="alert alert-danger">{{ error }}</div>
+  }
+
+  @if (!loading && rfqs.length === 0) {
+    <div class="card">
+      <div class="card-body text-center py-5">
+        <i class="bi bi-inbox" style="font-size: 4rem; color: #ccc;"></i>
+        <h4 class="mt-3">No Open RFQs Available</h4>
+        <p class="text-muted">Check back later for new opportunities</p>
+      </div>
+    </div>
+  }
+
+  @if (!loading && rfqs.length > 0) {
+    <div class="row">
+      @for (rfq of rfqs; track rfq._id) {
+        <div class="col-lg-6 mb-4">
+          <div class="card h-100 shadow hover-card" (click)="viewRFQDetails(rfq._id)" style="cursor: pointer;">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-3">
+                <h5 class="card-title mb-0">{{ rfq.title }}</h5>
+                <span class="badge bg-success">OPEN</span>
+              </div>
+              
+              <p class="card-text text-muted mb-3">
+                {{ rfq.description.substring(0, 150) }}{{ rfq.description.length > 150 ? '...' : '' }}
+              </p>
+
+              <div class="row g-3 mb-3">
+                <div class="col-6">
+                  <div class="d-flex align-items-center text-muted">
+                    <i class="bi bi-building me-2"></i>
+                    <small>{{ rfq.customerName }}</small>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="d-flex align-items-center text-muted">
+                    <i class="bi bi-tag me-2"></i>
+                    <small>{{ rfq.category }}</small>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="d-flex align-items-center text-muted">
+                    <i class="bi bi-box me-2"></i>
+                    <small>{{ rfq.quantity }} {{ rfq.unit }}</small>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="d-flex align-items-center text-muted">
+                    <i class="bi bi-geo-alt me-2"></i>
+                    <small>{{ rfq.deliveryLocation }}</small>
+                  </div>
+                </div>
+              </div>
+
+              @if (rfq.estimatedBudget) {
+                <div class="mb-3">
+                  <strong>Estimated Budget:</strong>
+                  <span class="text-success ms-2">${{ rfq.estimatedBudget | number: '1.2-2' }}</span>
+                </div>
+              }
+
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  @if (getDaysRemaining(rfq.endDate) > 0) {
+                    <span class="badge bg-warning text-dark">
+                      <i class="bi bi-clock"></i> {{ getDaysRemaining(rfq.endDate) }} days left
+                    </span>
+                  } @else {
+                    <span class="badge bg-danger">
+                      <i class="bi bi-exclamation-triangle"></i> Expired
+                    </span>
+                  }
+                </div>
+                <button class="btn btn-primary btn-sm" (click)="viewRFQDetails(rfq._id); $event.stopPropagation()">
+                  View & Bid <i class="bi bi-arrow-right"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

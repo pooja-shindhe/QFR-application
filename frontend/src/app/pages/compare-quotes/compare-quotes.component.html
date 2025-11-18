@@ -1,0 +1,285 @@
+<div class="container mt-4">
+  <!-- Header with Breadcrumb -->
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a (click)="goBackToRFQList()" style="cursor: pointer;">My RFQs</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">Compare Bids</li>
+    </ol>
+  </nav>
+
+  <!-- Page Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2><i class="bi bi-bar-chart-fill"></i> Compare Bids</h2>
+      @if (rfq) {
+        <p class="text-muted mb-0">
+          <strong>RFQ:</strong> {{ rfq.title }} 
+          <span class="badge bg-secondary ms-2">{{ rfq.rfqNumber }}</span>
+        </p>
+      }
+    </div>
+    <div>
+      <button class="btn btn-outline-secondary me-2" (click)="goBackToRFQList()">
+        <i class="bi bi-arrow-left"></i> Back to List
+      </button>
+      @if (rfq) {
+        <button class="btn btn-outline-primary" (click)="viewRFQDetails()">
+          <i class="bi bi-eye"></i> View RFQ Details
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (loading) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-3 text-muted">Loading bids...</p>
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (error && !loading) {
+    <div class="alert alert-danger alert-dismissible fade show">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i>
+      {{ error }}
+      <button type="button" class="btn-close" (click)="error = ''"></button>
+    </div>
+  }
+
+  <!-- Empty State - No Bids -->
+  @if (!loading && bids.length === 0 && !error) {
+    <div class="card shadow-sm">
+      <div class="card-body text-center py-5">
+        <i class="bi bi-inbox" style="font-size: 5rem; color: #ccc;"></i>
+        <h4 class="mt-4">No Bids Received Yet</h4>
+        <p class="text-muted">
+          This RFQ hasn't received any bids from vendors yet.
+          @if (rfq?.status === 'open') {
+            <br>Vendors can still submit bids until {{ rfq?.endDate | date: 'mediumDate' }}.
+          }
+        </p>
+        @if (rfq) {
+          <button class="btn btn-primary mt-3" (click)="viewRFQDetails()">
+            <i class="bi bi-eye"></i> View RFQ Details
+          </button>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Bids Content -->
+  @if (!loading && bids.length > 0) {
+    <!-- Summary Statistics -->
+    <div class="row mb-4">
+      <div class="col-md-3">
+        <div class="card bg-light border-0 shadow-sm">
+          <div class="card-body text-center">
+            <h6 class="text-muted mb-2">Total Bids</h6>
+            <h2 class="mb-0 text-primary">{{ bids.length }}</h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card bg-success text-white border-0 shadow-sm">
+          <div class="card-body text-center">
+            <h6 class="mb-2">Lowest Price</h6>
+            <h2 class="mb-0">{{ formatCurrency(getLowestPrice()) }}</h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card bg-info text-white border-0 shadow-sm">
+          <div class="card-body text-center">
+            <h6 class="mb-2">Average Price</h6>
+            <h2 class="mb-0">{{ formatCurrency(getAveragePrice()) }}</h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card bg-light border-0 shadow-sm">
+          <div class="card-body">
+            <h6 class="text-muted mb-2">Sort By</h6>
+            <div class="btn-group w-100 btn-group-sm" role="group">
+              <button 
+                class="btn"
+                [class.btn-primary]="sortBy === 'price'"
+                [class.btn-outline-primary]="sortBy !== 'price'"
+                (click)="onSortChange('price')">
+                Price
+              </button>
+              <button 
+                class="btn"
+                [class.btn-primary]="sortBy === 'delivery'"
+                [class.btn-outline-primary]="sortBy !== 'delivery'"
+                (click)="onSortChange('delivery')">
+                Delivery
+              </button>
+              <button 
+                class="btn"
+                [class.btn-primary]="sortBy === 'submitted'"
+                [class.btn-outline-primary]="sortBy !== 'submitted'"
+                (click)="onSortChange('submitted')">
+                Date
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Export Button -->
+    <div class="mb-3 text-end">
+      <button class="btn btn-outline-success btn-sm" (click)="exportBidsToCSV()">
+        <i class="bi bi-download"></i> Export to CSV
+      </button>
+    </div>
+
+    <!-- Bids Grid -->
+    <div class="row">
+      @for (bid of bids; track bid._id) {
+        <div class="col-lg-6 mb-4">
+          <div class="card h-100 shadow-sm bid-card" 
+            [class.border-success]="bid.quotedPrice === getLowestPrice()"
+            [class.border-3]="bid.quotedPrice === getLowestPrice()">
+            
+            <!-- Card Header -->
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <div>
+                <h5 class="mb-0">{{ bid.vendorCompany }}</h5>
+                <small class="text-muted">{{ bid.bidNumber }}</small>
+              </div>
+              <span class="badge {{ getStatusBadgeClass(bid.status) }}">
+                {{ bid.status | uppercase }}
+              </span>
+            </div>
+
+            <!-- Card Body -->
+            <div class="card-body">
+              <!-- Vendor Information -->
+              <div class="mb-3">
+                <h6 class="text-muted">Vendor Contact</h6>
+                <p class="mb-1"><strong>Name:</strong> {{ bid.vendorName }}</p>
+                @if (bid.vendorId?.email) {
+                  <p class="mb-0">
+                    <strong>Email:</strong> 
+                    <a [href]="'mailto:' + bid.vendorId.email">{{ bid.vendorId.email }}</a>
+                  </p>
+                }
+              </div>
+
+              <!-- Bid Details -->
+              <div class="row mb-3">
+                <div class="col-6">
+                  <div class="bid-detail-box text-center">
+                    <h6 class="text-muted mb-1">Quoted Price</h6>
+                    <h3 class="text-success mb-0">
+                      {{ formatCurrency(bid.quotedPrice) }}
+                      @if (bid.quotedPrice === getLowestPrice()) {
+                        <i class="bi bi-star-fill text-warning ms-2" title="Lowest Price"></i>
+                      }
+                    </h3>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="bid-detail-box text-center">
+                    <h6 class="text-muted mb-1">Delivery Time</h6>
+                    <h3 class="text-primary mb-0">
+                      {{ bid.deliveryTime }} {{ bid.deliveryTimeUnit }}
+                    </h3>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row mb-3">
+                <div class="col-6">
+                  <div class="info-item">
+                    <i class="bi bi-calendar-check text-primary"></i>
+                    <span class="ms-2">
+                      <strong>Validity:</strong> {{ bid.validityPeriod }} days
+                    </span>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="info-item">
+                    <i class="bi bi-clock text-primary"></i>
+                    <span class="ms-2">
+                      <strong>Submitted:</strong> {{ bid.submittedAt | date: 'short' }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Comments -->
+              @if (bid.comments) {
+                <div class="mb-3">
+                  <h6 class="text-muted">Vendor Comments</h6>
+                  <p class="text-muted small border-start border-3 border-primary ps-3 mb-0">
+                    {{ bid.comments }}
+                  </p>
+                </div>
+              }
+
+              <!-- Specifications -->
+              @if (bid.specifications && bid.specifications.size > 0) {
+                <div class="mb-3">
+                  <h6 class="text-muted">Specifications</h6>
+                  <div class="specifications-box">
+                    @for (spec of bid.specifications | keyvalue; track spec.key) {
+                      <div class="spec-item">
+                        <strong>{{ spec.key }}:</strong> {{ spec.value }}
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+
+            <!-- Card Footer - Action Buttons -->
+            <div class="card-footer bg-white border-top">
+              @if (bid.status === 'submitted' || bid.status === 'under_review') {
+                <div class="d-grid gap-2">
+                  <button 
+                    class="btn btn-success"
+                    (click)="acceptBid(bid, $event)">
+                    <i class="bi bi-check-circle-fill"></i> Accept Bid & Create Contract
+                  </button>
+                  <div class="btn-group">
+                    @if (bid.status === 'submitted') {
+                      <button 
+                        class="btn btn-outline-warning"
+                        (click)="reviewBid(bid._id, $event)">
+                        <i class="bi bi-eye"></i> Mark Under Review
+                      </button>
+                    }
+                    <button 
+                      class="btn btn-outline-danger"
+                      (click)="rejectBid(bid._id, $event)">
+                      <i class="bi bi-x-circle"></i> Reject Bid
+                    </button>
+                  </div>
+                </div>
+              }
+              
+              @if (bid.status === 'accepted') {
+                <div class="alert alert-success mb-0">
+                  <i class="bi bi-check-circle-fill"></i> This bid has been accepted
+                </div>
+              }
+              
+              @if (bid.status === 'rejected') {
+                <div class="alert alert-danger mb-0">
+                  <i class="bi bi-x-circle-fill"></i> This bid has been rejected
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
